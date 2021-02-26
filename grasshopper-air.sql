@@ -111,6 +111,8 @@ insert into Passengers (PsgrID, FirstName, LastName) values (24, 'Otto', 'Bonn')
 insert into Passengers (PsgrID, FirstName, LastName) values (25, 'Jerry', 'Atric');
 insert into Passengers (PsgrID, FirstName, LastName) values (26, 'Gil', 'O''Teen');
 insert into Passengers (PsgrID, FirstName, LastName) values (27, 'Maude', 'Lynn');
+insert into Passengers (PsgrID, FirstName, LastName) values (28, 'Rocky', 'Beech');
+insert into Passengers (PsgrID, FirstName, LastName) values (29, 'Sonny', 'Down');
 
 -- Dates are represented as a string with an ISO8601 date
 insert into Bookings (FltNum, FltDate, PsgrID) values (100, '2021-02-28', 19);
@@ -222,6 +224,7 @@ insert into Bookings (FltNum, FltDate, PsgrID) values (305, '2021-03-04', 11);
 insert into Bookings (FltNum, FltDate, PsgrID) values (305, '2021-03-04', 12);
 insert into Bookings (FltNum, FltDate, PsgrID) values (305, '2021-03-04', 17);
 insert into Bookings (FltNum, FltDate, PsgrID) values (305, '2021-03-04', 22);
+insert into Bookings (FltNum, FltDate, PsgrID) values (305, '2021-03-02', 28);
 
 ------------------ Data query (SELECT) -------------------
 
@@ -231,10 +234,12 @@ insert into Bookings (FltNum, FltDate, PsgrID) values (305, '2021-03-04', 22);
 -- All rows, only registration and model columns
 -- select PlaneID, model from aircraft;
 
+------ RESTRICTIONS (WHERE)
+
 -- All columns, just the Jetstreams
 -- use LIKE to match string patterns
 -- '%' matches zero or more characters
--- select * from aircraft where model like 'Jetstream%';
+-- select * from aircraft where model = 'Jetstream 31';
 
 -- All columns, only the airplanes with fewer than 20 seats
 -- select * from aircraft where seats < 20;
@@ -250,8 +255,10 @@ insert into Bookings (FltNum, FltDate, PsgrID) values (305, '2021-03-04', 22);
 -- select PlaneID, model from aircraft where seats > 20
 --    or manufacturer = 'Cessna';
 
+------ JOINS
+
 -- Cross-product of aircraft and flights
---   select * from aircraft inner join flights;
+-- select * from aircraft inner join flights;
 
 -- Same as below, but more verbose and containing a duplicate column
 -- select * from aircraft inner join flights on aircraft.PlaneID=flights.PlaneID;
@@ -268,13 +275,120 @@ insert into Bookings (FltNum, FltDate, PsgrID) values (305, '2021-03-04', 22);
 -- A join result can be restricted like any other table
 -- select * from aircraft natural inner join flights where origin='ATL' or destination='ATL';
 
+------ 3-WAY JOIN
+
 -- Natural join between passengers and bookings
 -- All of Guy Wire's reservations:
 -- select * from passengers natural join bookings where FirstName = 'Guy';
 -- All of Emanuel Transmission's reservations:
 -- select * from passengers natural join bookings where LastName = 'Transmission';
 
-select FltNum, FltDate, origin, destination, departs, arrives from passengers natural join bookings natural join flights where LastName = 'Transmission';
+-- Where is Emanuel Transmission traveling?
+-- select FltNum, FltDate, origin, destination, departs, arrives from passengers natural join bookings natural join flights where LastName = 'Transmission';
+
+-- Where is Emanuel Transmission traveling on 2/28?
+-- select FltNum, FltDate, origin, destination, departs, arrives from passengers natural join bookings natural join flights where LastName = 'Transmission' and FltDate = date('2021-02-28');
+
+------ FORMATTING
+
+-- Where is Emanuel Transmission traveling in March?
+-- Formatting helps keep track of complicated queries
+    -- SELECT and columns on a line
+    -- FROM on its own line
+    -- Each join on its own line, with parentheses for clarity
+    -- WHERE on a new line
+    -- Each new condition in the WHERE on its own line
+    -- Use parentheses if needed in WHERE
+-- select FltNum, FltDate, origin, destination, departs, arrives 
+-- from 
+-- (passengers natural join bookings)
+--  natural join flights 
+-- where LastName = 'Transmission' 
+--     and FltDate > date('2021-02-28');
+
+------ DISTINCT, ORDER BY
+
+-- Find the passengers who are booked to fly on March 2
+-- select * from 
+-- passengers natural join bookings
+-- where FltDate = date('2021-03-02');
+
+-- Find the passengers who are booked to fly on March 2.  Get rid of empty columns.
+-- select FirstName,LastName,FltNum,FltDate
+-- from 
+-- passengers natural join bookings
+-- where FltDate = date('2021-03-02');
+
+-- Find the passengers who are booked to fly on March 2; just the passengers' names, not any flight details.
+-- select FirstName,LastName
+-- from 
+-- passengers natural join bookings
+-- where FltDate = date('2021-03-02');
+
+-- Find the passengers who are booked to fly on March 2; just the passengers' names, not any flight details.  Suppress the duplicates.
+-- select distinct FirstName,LastName
+-- from 
+-- passengers natural join bookings
+-- where FltDate = date('2021-03-02');
+
+-- Find the passengers who are booked to fly on March 2; just the passengers' names, not any flight details.  Suppress the duplicates.  Sort by last name, and then by first name
+-- select distinct FirstName,LastName
+-- from 
+-- passengers natural join bookings
+-- where FltDate = date('2021-03-02')
+-- order by LastName,FirstName;
+
+------ LEFT JOIN
+
+-- List all the passengers and their flights, suppressing empty columns.
+-- select PsgrID, FirstName, LastName,
+--     FltNum, FltDate
+-- from passengers natural join bookings;
+
+-- List all the passengers and their flights.  Keep the passengers who have no bookings.
+-- select passengers.PsgrID, FirstName,
+--     LastName, FltNum, FltDate
+-- from passengers left join bookings
+-- on passengers.PsgrID = bookings.PsgrID;
+
+
+------ AGGREGATIONS (summaries)
+
+-- How many airplanes does Grapsshopper have, and how
+-- many seats could they put in the air at one time?
+-- select count(*) as Airplanes, sum(Seats) as TotalSeats
+-- from Aircraft;
+
+-- How many bookings does Grasshopper have, by flight?
+-- select FltNum, count(*) as Reservations
+-- from Bookings
+-- group by FltNum;
+
+-- How many bookings does Grasshopper have, 
+-- by flight and date?
+-- select FltNum, FltDate, count(*) as Reservations
+-- from Bookings
+-- group by FltNum, FltDate;
+
+-- How many bookings does Grasshopper have, 
+-- by flight and date?  Suppress the flights with
+-- too few bookings.
+-- select FltNum, FltDate, count(*) as Reservations
+-- from Bookings
+-- group by FltNum, FltDate
+-- having Reservations > 2;
+
+-- How many bookings does Grasshopper have by origin and destination?
+-- select Origin, Destination, count(*) as Reservations
+-- from bookings natural join flights
+-- group by Origin, Destination;
+
+-- How many bookings does each of Grasshopper's passengers have?  (This is the frequent-flyer question.)  Sort from the most to the least.)
+select FirstName, LastName, count(*) as Reservations
+from bookings natural join passengers
+group by FirstName, LastName
+order by Reservations desc;
 
 
 -- select time('now'); -- In GMT/UTC
+select time('now', '-5 hours'); -- In U.S. Eastern Standard Time

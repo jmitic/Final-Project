@@ -11,6 +11,50 @@ CREATE TABLE Institution (
        zip		   char(9)
 -- constraint PKInst primary key(id)
 );
+CREATE TABLE Reqt (
+       id                  INTEGER primary key autoincrement,
+       ARC_code		   char(10),
+       reqType             varchar(30),
+       description         varchar(200) not null,
+       hoursNeeded	   decimal(4,1) not null default 0,
+       coursesNeeded	   integer not null default 1,
+       effective	   date,
+       expires		   date
+-- CONSTRAINT PKConverseReqt PRIMARY KEY(id)
+);
+CREATE TABLE Course (
+       id                  INTEGER primary key autoincrement,
+       crs_code            char(12) not null,
+       crs_name		   varchar(60),
+       hours		   decimal(3,1) not null default 3,
+       instID		   integer not null,
+-- CONSTRAINT PKCourse PRIMARY KEY(id),
+CONSTRAINT FKInstID foreign key(instID) references Institution(id)
+    on delete restrict
+);
+CREATE TABLE Fulfills (
+       id                  integer primary key autoincrement,
+       course              integer not null,
+       reqt                integer not null,
+-- CONSTRAINT PKFulfills PRIMARY KEY(id),
+CONSTRAINT FKCourseFulfills FOREIGN KEY(course) references Course(id) on delete cascade,
+CONSTRAINT FKReqtFulfilled FOREIGN KEY(reqt) references Reqt(id) on delete cascade
+);
+CREATE TABLE Equivalence (
+       id                  integer primary key autoincrement,
+       ForeignID           integer,
+       ReqtID              integer,
+       ConverseID          integer,
+       authorizedby        varchar(50) not null,
+       dateapproved        date not null,
+       effective           date,
+       expires             date,
+-- CONSTRAINT PKEquivalence PRIMARY KEY(id),
+CONSTRAINT FKForeignEQU foreign key(ForeignID) references Course(id),
+CONSTRAINT FKConverseEQU foreign key(ConverseID) references Course(id),
+CONSTRAINT FKReqtEQU foreign key(ReqtID) references Reqt(id)
+);
+
 INSERT INTO "Institution" VALUES(1,'*LOCAL','003431','Converse College','580 E. Main St.','Spartanburg','SC','29302');
 INSERT INTO "Institution" VALUES(2,'$1','','Ai Miami Intl University of Art & Design',NULL,NULL,NULL,NULL);
 INSERT INTO "Institution" VALUES(3,'$A002','','University of the West Indies',NULL,NULL,NULL,NULL);
@@ -747,17 +791,6 @@ INSERT INTO "Institution" VALUES(757,'6199','','Dallas County Commun',NULL,NULL,
 INSERT INTO "Institution" VALUES(758,'6473','','Northeast Community',NULL,NULL,NULL,NULL);
 INSERT INTO "Institution" VALUES(759,'6837','','Tarrant County  College',NULL,NULL,NULL,NULL);
 
-CREATE TABLE Reqt (
-       id                  INTEGER primary key autoincrement,
-       ARC_code		   char(10),
-       reqType             varchar(30),
-       description         varchar(200) not null,
-       hoursNeeded	   decimal(4,1) not null default 0,
-       coursesNeeded	   integer not null default 1,
-       effective	   date,
-       expires		   date
--- CONSTRAINT PKConverseReqt PRIMARY KEY(id)
-);
 INSERT INTO "Reqt" VALUES(1,'SED561','CRS  ','LANGUAGE DEVELOP & DISABI',3,1,'','');
 INSERT INTO "Reqt" VALUES(2,'VOI122','CRS  ','VOICE                    ',0,1,'','');
 INSERT INTO "Reqt" VALUES(3,'1A.000','CRS  ','ORGAN                    ',0,1,'','');
@@ -9649,16 +9682,7 @@ INSERT INTO "Reqt" VALUES(8888,'WST201H','CRS  ','SP:                      ',0,1
 INSERT INTO "Reqt" VALUES(8889,'WST220','CRS  ','WOMEN''S STUDIES          ',0,1,'','');
 INSERT INTO "Reqt" VALUES(8890,'WST299','CRS  ','RISE OF SALONNIERES      ',0,1,'','');
 INSERT INTO "Reqt" VALUES(8891,'WST299H','CRS  ','HR:BUFFY VAMPIRE         ',0,1,'','');
-CREATE TABLE Course (
-       id                  INTEGER primary key autoincrement,
-       crs_code            char(12) not null,
-       crs_name		   varchar(60),
-       hours		   decimal(3,1) not null default 3,
-       instID		   integer not null,
--- CONSTRAINT PKCourse PRIMARY KEY(id),
-CONSTRAINT FKInstID foreign key(instID) references Institution(id)
-    on delete restrict
-);
+
 INSERT INTO "Course" VALUES(1,'CS1101',NULL,3,2);
 INSERT INTO "Course" VALUES(2,'EN1101',NULL,3,2);
 INSERT INTO "Course" VALUES(3,'EN1102',NULL,3,2);
@@ -18868,14 +18892,7 @@ INSERT INTO "Course" VALUES(12230,'HPE134',NULL,3,1);
 INSERT INTO "Course" VALUES(12231,'HPE180',NULL,3,1);
 INSERT INTO "Course" VALUES(12232,'HPE197',NULL,3,1);
 INSERT INTO "Course" VALUES(12233,'GER202',NULL,3,1);
-CREATE TABLE Fulfills (
-       id                  integer primary key autoincrement,
-       course              integer not null,
-       reqt                integer not null,
--- CONSTRAINT PKFulfills PRIMARY KEY(id),
-CONSTRAINT FKCourseFulfills FOREIGN KEY(course) references Course(id) on delete cascade,
-CONSTRAINT FKReqtFulfilled FOREIGN KEY(reqt) references Reqt(id) on delete cascade
-);
+
 INSERT INTO "Fulfills" VALUES(1,11959,24);
 INSERT INTO "Fulfills" VALUES(2,11960,27);
 INSERT INTO "Fulfills" VALUES(3,11961,36);
@@ -19085,20 +19102,7 @@ INSERT INTO "Fulfills" VALUES(206,12230,3731);
 INSERT INTO "Fulfills" VALUES(207,12231,3743);
 INSERT INTO "Fulfills" VALUES(208,12232,3748);
 INSERT INTO "Fulfills" VALUES(209,12233,3340);
-CREATE TABLE Equivalence (
-       id                  integer primary key autoincrement,
-       ForeignID           integer,
-       ReqtID              integer,
-       ConverseID          integer,
-       authorizedby        varchar(50) not null,
-       dateapproved        date not null,
-       effective           date,
-       expires             date,
--- CONSTRAINT PKEquivalence PRIMARY KEY(id),
-CONSTRAINT FKForeignEQU foreign key(ForeignID) references Course(id),
-CONSTRAINT FKConverseEQU foreign key(ConverseID) references Course(id),
-CONSTRAINT FKReqtEQU foreign key(ReqtID) references Reqt(id)
-);
+
 INSERT INTO "Equivalence" VALUES(1,17,2567,NULL,'default','1889-01-01',NULL,NULL);
 INSERT INTO "Equivalence" VALUES(2,18,2612,NULL,'default','1889-01-01',NULL,NULL);
 INSERT INTO "Equivalence" VALUES(3,38,7814,NULL,'default','1889-01-01',NULL,NULL);
