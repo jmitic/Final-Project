@@ -21411,38 +21411,3 @@ INSERT INTO "Equivalence" VALUES(2305,11946,8173,NULL,'default','1889-01-01',NUL
 INSERT INTO "Equivalence" VALUES(2306,11953,1832,NULL,'default','1889-01-01',NULL,NULL);
 INSERT INTO "Equivalence" VALUES(2307,11954,6364,NULL,'default','1889-01-01',NULL,NULL);
 COMMIT;
-
-
--- Copy all the International Baccalaureate courses to "EXEMPTION"
-insert into "Course" (crs_code, instID)
-select crs_code, 21 as instID
-from Course where instID = 19;
-
--- Show the changes
--- select * from Course where instID = 19 or instID = 21;
-
--- Delete the duplicates, using the self-join below to
--- discover their id's
--- This only works for a relatively small number of
--- duplicates.  If I had a lot of duplicates, I'd have
--- to be smart about it.
-delete from Course 
-where id=12242 or id=12244 or id=12245 or id=12248
-    or id=12246 or id=12250 or id=12251 or id=12258
-    or id=12260 or id=12263 or id=12270 or id=12269
-    or id=12272;
-
-
--- Self-join to find the duplicates
---   (Note this will find duplicates for all
---    institutions, not just "EXEMPTION".)
-select A.id, A.crs_code, A.hours, 
-       B.id, B.crs_code, B.hours, B.instID
-from Course A inner join Course B
-    on A.instID = B.instID 
-        and A.crs_code = B.crs_code
-        and A.id < B.id;
-
--- Show the courses added to Course by the INSERT
-select * from Course
-where instID = 21 and id > 12000;
