@@ -21414,9 +21414,9 @@ COMMIT;
 
 
 -- Copy all the International Baccalaureate courses to "EXEMPTION"
-insert into "Course" (crs_code, instID)
-select crs_code, 21 as instID
-from Course where instID = 19;
+-- insert into "Course" (crs_code, instID)
+-- select crs_code, 21 as instID
+-- from Course where instID = 19;
 
 -- Show the changes
 -- select * from Course where instID = 19 or instID = 21;
@@ -21426,23 +21426,49 @@ from Course where instID = 19;
 -- This only works for a relatively small number of
 -- duplicates.  If I had a lot of duplicates, I'd have
 -- to be smart about it.
-delete from Course 
-where id=12242 or id=12244 or id=12245 or id=12248
-    or id=12246 or id=12250 or id=12251 or id=12258
-    or id=12260 or id=12263 or id=12270 or id=12269
-    or id=12272;
+-- delete from Course 
+-- where id=12242 or id=12244 or id=12245 or id=12248
+--     or id=12246 or id=12250 or id=12251 or id=12258
+--     or id=12260 or id=12263 or id=12270 or id=12269
+--     or id=12272;
 
 
 -- Self-join to find the duplicates
 --   (Note this will find duplicates for all
 --    institutions, not just "EXEMPTION".)
-select A.id, A.crs_code, A.hours, 
-       B.id, B.crs_code, B.hours, B.instID
-from Course A inner join Course B
-    on A.instID = B.instID 
-        and A.crs_code = B.crs_code
-        and A.id < B.id;
+-- select A.id, A.crs_code, A.hours, 
+--        B.id, B.crs_code, B.hours, B.instID
+-- from Course A inner join Course B
+--     on A.instID = B.instID 
+--         and A.crs_code = B.crs_code
+--         and A.id < B.id;
 
 -- Show the courses added to Course by the INSERT
-select * from Course
-where instID = 21 and id > 12000;
+-- select * from Course
+-- where instID = 21 and id > 12000;
+
+-- UPDATE: add an address for USC Upstate
+-- update institution set address='800 University Way',city='Spartanburg',schoolState='SC',zip='29303' where schoolName='USC Upstate';
+
+-- Same for SMC
+-- update institution set address='1000 Powell Mill Road',city='Spartanburg',schoolState='SC',zip='29301' where schoolName='Spartanburg Methodist College';
+
+-- SELECT to verify
+-- select * from Institution 
+-- where city='Spartanburg';
+
+-- Select to give us the before and after
+select * from Equivalence
+where effective = dateapproved;
+
+-- Timestamp to show the boundary
+select datetime('now');
+
+-- UPDATE to set equivalence effective date
+--    equal to date approved where null
+update Equivalence set effective=dateapproved
+where effective is null;
+
+-- SELECT to verify
+select * from Equivalence
+where effective is null;
