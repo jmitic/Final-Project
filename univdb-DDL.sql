@@ -32,4 +32,28 @@ create table Course (
     CourseDesc varchar(250),
     Units smallint,
     constraint PKCourse primary key(CourseNo)
-)
+);
+
+create table Offering (
+    OfferNo integer,
+    FacSSN char(11),
+    CourseNo char(6) not null,
+    OffLocation varchar(50),
+    OffDays char(6),
+    OffTerm char(6),
+    OffYear integer,
+    OffTime time,
+    constraint PKOffering primary key(OfferNo),
+    constraint FKFac foreign key(FacSSN) references Faculty(SSN),
+    constraint FKCourse foreign key(CourseNo) references Course
+);
+
+create table Enrollment (
+    StdSSN char(11),
+    OfferNo integer,
+    EnrGrade decimal(3,2),
+    constraint PKEnrollment primary key(StdSSN, OfferNo),
+    constraint FKStudent foreign key(StdSSN) references Student(SSN),
+    constraint FKOffering foreign key(OfferNo) references Offering
+);
+
