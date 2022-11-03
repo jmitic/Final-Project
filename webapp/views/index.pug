@@ -4,12 +4,15 @@ block content
   h1 #{title.charAt(0).toUpperCase() + title.substring(1)}
   p Welcome to the #{title}
 
-  h2 Results of query: #{query}
+  include query_form
+
+  h2 Results of query: <q>#{query}</q>
   table
-    tbody
+    thead
       tr
         each key in Object.keys(rows[0])
           th= key
+    tbody
       each row in rows
         tr
           each val in Object.values(row)

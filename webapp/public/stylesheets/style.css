@@ -6,3 +6,10 @@ body {
 a {
   color: #00B7FF;
 }
+
+q:before {
+  content: "\201c";
+}
+q:after {
+  content: "\201d";
+}

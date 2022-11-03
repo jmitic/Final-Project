@@ -12,8 +12,8 @@ router.get('/', function(req, res, next) {
     //console.log(rows);
     res.render('index', { title: 'crsequiv database app', query: query, rows: rows });
   });
-
-  
 });
+
+//router.post('/', )
 
 module.exports = router;

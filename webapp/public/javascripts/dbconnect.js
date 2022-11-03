@@ -8,7 +8,7 @@ const dbopen = (dbpath) => {
       console.error(err.message);
     }
     else {
-      console.log(`Connected to the ${dbpath} database.`);
+      console.info(`Connected to the ${dbpath} database.`);
     }
   });
   return db;
