@@ -3,3 +3,14 @@ extends layout
 block content
   h1 #{title.charAt(0).toUpperCase() + title.substring(1)}
   p Welcome to the #{title}
+
+  h2 Results of query: #{query}
+  table
+    tbody
+      tr
+        each key in Object.keys(rows[0])
+          th= key
+      each row in rows
+        tr
+          each val in Object.values(row)
+            td= val

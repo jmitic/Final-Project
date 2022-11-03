@@ -7,6 +7,13 @@
 var app = require('../app');
 var debug = require('debug')('webapp:server');
 var http = require('http');
+var dbconnect = require('../public/javascripts/dbconnect');
+console.log('dbconnect required successfully');
+
+/**
+ * Open the database and attach it to the app object.
+ */
+app.locals.db = dbconnect.dbopen('../crsequiv.sqlite');
 
 /**
  * Get port from environment and store in Express.
@@ -49,11 +56,14 @@ function normalizePort(val) {
   return false;
 }
 
+
+
 /**
  * Event listener for HTTP server "error" event.
  */
 
 function onError(error) {
+  console.error('onError called');
   if (error.syscall !== 'listen') {
     throw error;
   }
@@ -86,5 +96,39 @@ function onListening() {
   var bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port;
-  debug('Listening on ' + bind);
+  console.log('Listening on ' + bind);
 }
+
+/**
+ * Function for graceful (as much as possible!) shutdown.
+ */
+function gracefulShutdown(signal) {
+  if (signal) {
+    console.log(`Received ${signal}, shutting down (somewhat) gracefully.`);
+  }
+  else {
+    console.log('Shutting down, no signal.');
+  }
+
+  server.close(() => {
+    console.log('Http server closed.');
+    if (app.locals.db) {
+      dbconnect.dbclose(app.locals.db, () => { 
+        console.log('Exiting after closing database.');
+        process.exit(0); 
+      });
+    }
+    else {
+      console.log('Exiting, no database to close.')
+      process.exit(0);
+    }
+  });
+  
+}
+
+/**
+ * Attach gracefulShutdown() to the two most common ways of shutting down.
+ */
+process.on('SIGTERM', gracefulShutdown);
+
+process.on('SIGINT', gracefulShutdown);

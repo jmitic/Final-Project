@@ -1,14 +1,20 @@
 const sqlite3 = require('sqlite3').verbose();
 
-let query = "SELECT * from Institution where id = 1;"
+//let query = "SELECT * from Institution where id = 1;"
 
-let db = new sqlite3.Database('./crsequiv.sqlite', sqlite3.OPEN_READWRITE, (err) => {
+const dbopen = (dbpath) => {
+  let db = new sqlite3.Database(dbpath, sqlite3.OPEN_READWRITE, (err) => {
     if (err) {
       console.error(err.message);
     }
-    console.log('Connected to the crsequiv database.');
+    else {
+      console.log(`Connected to the ${dbpath} database.`);
+    }
   });
+  return db;
+};
 
+/*
 db.all(query, [], (err, rows) => {
     if (err) {
       throw err;
@@ -26,11 +32,17 @@ db.all(query, [], (err, rows) => {
     result += "</table>";
     console.log(result);
   });
-  
-  // close the database connection
+*/  
+
+// close the database connection
+const dbclose = (db, afterCloseCallback) => { 
   db.close((err) => {
     if (err) {
       return console.error(err.message);
     }
-    console.log('Close the database connection.');
+    console.log('Closed the database connection.');
+    afterCloseCallback();
   });
+};
+
+module.exports = { dbopen, dbclose };
