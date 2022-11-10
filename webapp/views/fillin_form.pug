@@ -1,0 +1,19 @@
+h2 Fillable dropdown form
+
+if fillins
+    form(action="/", method="post")
+        input(type="hidden", name="formname", value="dropdown")
+        label SELECT
+        | 
+        input(type="text", name="columns")
+        |  FROM Course WHERE
+        br
+        | instID =
+        select(name='instID')
+            each rowObj in fillins
+                option(value = rowObj.id) #{rowObj.id}: #{rowObj.schoolName}
+        br
+        input(type="reset", value="Reset")
+        input(type="submit", value="Submit")
+else
+    p No schools, no form!

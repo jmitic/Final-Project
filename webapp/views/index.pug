@@ -4,16 +4,21 @@ block content
   h1 #{title.charAt(0).toUpperCase() + title.substring(1)}
   p Welcome to the #{title}
 
+  include fillin_form
+
   include query_form
 
   h2 Results of query: <q>#{query}</q>
-  table
-    thead
-      tr
-        each key in Object.keys(rows[0])
-          th= key
-    tbody
-      each row in rows
+  if rows
+    table
+      thead
         tr
-          each val in Object.values(row)
-            td= val
+          each key in Object.keys(rows[0])
+            th= key
+      tbody
+        each row in rows
+          tr
+            each val in Object.values(row)
+              td= val
+  else 
+    p No results.
