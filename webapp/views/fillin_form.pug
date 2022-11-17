@@ -5,15 +5,22 @@ if fillins
         input(type="hidden", name="formname", value="dropdown")
         label SELECT
         | 
-        input(type="text", name="columns")
+        input(type="text", name="columns", value="*", required)
+        span.flag
         |  FROM Course WHERE
         br
         | instID =
-        select(name='instID')
+        select(name='instID', required)
             each rowObj in fillins
                 option(value = rowObj.id) #{rowObj.id}: #{rowObj.schoolName}
+        span.flag
+        br
+        | and id = 
+        select(name='courseID', disabled, required)
+            option(value="") &mdash;Please select a course&mdash;
+        span.flag
         br
         input(type="reset", value="Reset")
-        input(type="submit", value="Submit")
+        input(type="submit", value="Submit", disabled)
 else
     p No schools, no form!
