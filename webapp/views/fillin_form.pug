@@ -25,8 +25,14 @@ if schools && (schools.length > 0)
         | and id = 
         |
         if postdata.instID 
-            select(name='courseID')
+            select(name='courseID', required)
                 option(value="") &mdash;Please select a course&mdash;
+                each rowObj in courses
+                    if (postdata.courseID && (postdata.courseID == rowObj.id))
+                        option(value = rowObj.id, selected) #{rowObj.id}: #{rowObj.crs_code}
+                    else
+                        option(value = rowObj.id) #{rowObj.id}: #{rowObj.crs_code}
+            span.flag
         else
             select(name='courseID', disabled)
                 option(value="") &mdash;Please select a course&mdash;
