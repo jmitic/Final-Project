@@ -17,22 +17,28 @@ router.post('/', function(req, res, next) {
   let query = '';
 
   /* If the columns aren't specified, there's no query here. */
-  if (req.body.columns) {
-    if (req.body.formname && (req.body.formname === 'SQL')) {
-      // Query from the main form.
-      // Note this is HIGHLY insecure!  Input should be
-      // sanitized before being used as code!!
-      query = `SELECT ${req.body.columns} FROM `
-              + `${req.body.tablespec} WHERE `
-              + `${req.body.where_clause};`;
-    }
-    else if (req.body.formname && (req.body.formname == 'dropdown')
-              && req.body.columns && (req.body.columns !== '')
-              && req.body.instID) {
-      // Query from the dropdown form.  Again, the input really should be
-      // sanitized for security.
-      query = `SELECT ${req.body.columns} FROM Course WHERE `
-              + `instID = ${req.body.instID};`;
+  if (req.body.formname && (req.body.formname === 'SQL')) {
+    // Query from the main form.
+    // Note this is HIGHLY insecure!  Input should be
+    // sanitized before being used as code!!
+    query = `SELECT ${req.body.columns} FROM `
+            + `${req.body.tablespec} WHERE `
+            + `${req.body.where_clause};`;
+  }
+  else if (req.body.formname && (req.body.formname == 'dropdown')
+            && req.body.columns && (req.body.columns !== '')
+            && req.body.instID) {
+    // Query from the dropdown form.  Again, the input really should be
+    // sanitized for security.
+    query = `SELECT * FROM Course WHERE `
+            + `instID = ${req.body.instID};`;
+    if (req.body.courseID){
+      query='select * from (course inner join Equivalence on ForeignID=Course.id) inner join Reqt on ReqtID=Reqt.id ' + 
+      `where instID= ${req.body.instID} and Course.id=${req.body.courseID}`;
+      if (req.body.datetaken){
+        query=query + ` and ((Equivalence.effective is null  or date(${req.body.datetaken}) >= Equivalence.effective) and (Equivalence.expires is null or date(${req.body.datetaken}) <=Equivalence.expires))`;
+      }
+      query=query + ';';
     }
   }
   runMainQuery(req, res, next, query);
