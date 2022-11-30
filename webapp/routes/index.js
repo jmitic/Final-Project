@@ -15,7 +15,7 @@ router.get('/', function(req, res, next) {
  */
 router.post('/', function(req, res, next) {
   let query = '';
-
+  console.log(req.body);
   /* If the columns aren't specified, there's no query here. */
   if (req.body.formname && (req.body.formname === 'SQL')) {
     // Query from the main form.
@@ -41,6 +41,11 @@ router.post('/', function(req, res, next) {
       query=query + ';';
     }
   }
+  else if (req.body.formname =='courseadd' && req.body.instID && req.body.crs_code && req.body.hours) {
+    query = 'INSERT INTO Course(crs_code, crs_name, hours, instID)'
+      + `VALUES('${req.body.crs_code}','${req.body.crs_name}',${req.body.hours},${req.body.instID});`;
+  }
+ 
   runMainQuery(req, res, next, query);
 });
 
