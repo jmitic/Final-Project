@@ -1,0 +1,68 @@
+h2 Add a course 
+form(action="/", method="post")
+    input(type="hidden", name="formname", value="addequiv")
+    | Choose a course: 
+    br
+    label Institution: 
+    | 
+    select(name='instID', required, onchange="setInstitution(this);")
+        each rowObj in schools
+            if (postdata.instID && (postdata.instID == rowObj.id))
+                option(value = rowObj.id, selected) #{rowObj.id}: #{rowObj.schoolName}
+            else 
+                option(value = rowObj.id) #{rowObj.id}: #{rowObj.schoolName}
+    span.flag
+    br
+    label Course: 
+    if postdata.instID 
+        select(name='courseID', required)
+            option(value="") &mdash;Please select a course&mdash;
+            each rowObj in courses
+                if (postdata.courseID && (postdata.courseID == rowObj.id))
+                    option(value = rowObj.id, selected) #{rowObj.id}: #{rowObj.crs_code}
+                else
+                    option(value = rowObj.id) #{rowObj.id}: #{rowObj.crs_code}
+        span.flag
+    else
+        select(name='courseID', disabled)
+            option(value="") &mdash;Please select a course&mdash;
+
+    br
+    br
+    | is equivalent to ONE of the following:
+    br
+    br
+    label Converse course:
+    select(name='converseID')
+        option(value="") &mdash;Please select a course&mdash;
+        each rowObj in converse_courses
+            if (postdata.converseID && (postdata.converseID == rowObj.id))
+                option(value = rowObj.id, selected) #{rowObj.id}: #{rowObj.crs_code}
+            else
+                option(value = rowObj.id) #{rowObj.id}: #{rowObj.crs_code}
+
+    // Dropdown with Converse courses, name='ConverseID'
+    // Like the course dropdown, except you fill it from a different set of rows.
+    // The rows here result from the query 
+    // 'SELECT id,crs_code from Course where instID=1;' 
+    br
+    | OR 
+    br
+    label Converse requirement: 
+    select(name='ReqtID')
+        option(value="") &mdash;Please select a course&mdash;
+        each rowObj in converse_requirements
+            if (postdata.ReqtID && (postdata.ReqtID == rowObj.id))
+                option(value = rowObj.id, selected) #{rowObj.id}: #{rowObj.ARC_code} #{rowObj.description}
+            else
+                option(value = rowObj.id) #{rowObj.id}: #{rowObj.ARC_code} #{rowObj.description}
+
+    // Dropdown with requirements (from Reqt table), name='ReqtID'
+    // The rows here (yet another set of rows) result from the query
+    // 'SELECT id,ARC_code, description from Reqt;'
+    br
+    input(type="reset", value="Reset")
+    if postdata.instID 
+        input(type="submit", value="Submit")
+    else 
+        input(type="submit", value="Submit", disabled)

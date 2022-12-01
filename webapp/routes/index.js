@@ -41,6 +41,18 @@ router.post('/', function(req, res, next) {
       query=query + ';';
     }
   }
+  else if (req.body.formname == 'addequiv' && req.body.courseID && (req.body.converseID || req.body.ReqtID)) {
+    if (req.body.ReqtID) {
+      query= 'INSERT INTO Equivalence(ReqtID, ForeignID, authorizedby, dateapproved)'
+        +`values(${req.body.ReqtID}, ${req.body.courseID},`
+        +"'default', date('1889-01-01'));";
+    }
+    else {
+      query= 'INSERT INTO Equivalence(ConverseID, ForeignID, authorizedby, dateapproved)'
+        +`values(${req.body.converseID}, ${req.body.courseID},`
+        +"'default', date('1889-01-01'));";
+    }
+  }
   runMainQuery(req, res, next, query);
 });
 
@@ -55,6 +67,7 @@ router.post('/', function(req, res, next) {
 function runMainQuery(req, res, next, query) {
   req.app.locals.query = query;
   if (query) {
+    console.log(query)
     req.app.locals.db.all(query, [], (err, rows) => {
       if (err) {
         throw err;
@@ -78,12 +91,28 @@ function runMainQuery(req, res, next, query) {
  */
 function runSchoolsQuery(req, res, next) {
   let schools_query = 'SELECT id, schoolName from Institution;';
+  let Converse_courses_query = 'SELECT id,crs_code from Course where instID=1;';
+  let converse_requirements_query = 'SELECT id, ARC_code, description from Reqt;';
   req.app.locals.db.all(schools_query, [], (err, schools) => {
     if (err) {
       throw err;
     }
     req.app.locals.schools = schools;
-    runCoursesQuery(req, res, next);
+    req.app.locals.db.all(Converse_courses_query, [], (err, converse_courses) => {
+      if (err) {
+        throw err;
+      }
+      req.app.locals.converse_courses = converse_courses;
+      req.app.locals.db.all(converse_requirements_query, [], (err, converse_requirements) => {
+        if (err) {
+          throw err;
+        }
+        req.app.locals.converse_requirements = converse_requirements;
+        runCoursesQuery(req, res, next);
+      } );
+      
+
+    });
   });
 }
 
@@ -129,6 +158,8 @@ function showIndex(req, res, next) {
                         query: req.app.locals.query,
                         rows: req.app.locals.rows,
                         schools: req.app.locals.schools,
+                        converse_courses: req.app.locals.converse_courses,
+                        converse_requirements: req.app.locals.converse_requirements, 
                         instID: req.app.locals.instID,
                         courses: req.app.locals.courses,
                         postdata: req.body });

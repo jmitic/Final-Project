@@ -1,10 +1,13 @@
 extends layout
 
 block content
+
   h1 #{title.charAt(0).toUpperCase() + title.substring(1)}
   p Welcome to the #{title}
 
   include fillin_form
+
+  include addequiv_form
 
   include query_form
 
